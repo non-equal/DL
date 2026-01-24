@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>썸네일 도구 모음</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;
+      background:#050509;
+      color:#f5f5f7;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+    }
+    .wrap{
+      width:100%;
+      max-width:520px;
+      padding:24px 20px 28px;
+      background:rgba(15,15,20,.95);
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:0 18px 45px rgba(0,0,0,.65);
+    }
+    h1{
+      margin:0 0 4px;
+      font-size:20px;
+    }
+    p.caption{
+      margin:0 0 18px;
+      font-size:13px;
+      color:#a0a0b3;
+    }
+    ul{
+      list-style:none;
+      margin:0;
+      padding:0;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    a.tool{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:12px 14px;
+      border-radius:12px;
+      text-decoration:none;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      color:#f5f5f7;
+      font-size:14px;
+    }
+    a.tool span.sub{
+      font-size:11px;
+      color:#a0a0b3;
+      display:block;
+      margin-top:2px;
+    }
+    a.tool:hover{
+      background:rgba(255,255,255,.09);
+    }
+    .chip{
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+    }
+    footer{
+      margin-top:14px;
+      font-size:11px;
+      color:#77778a;
+      text-align:right;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>썸네일 도구 모음</h1>
+    <p class="caption">사용할 작업을 선택하세요.</p>
+    <ul>
+      <li>
+        <a class="tool" href="blog.html">
+          <div>
+            블로그 썸네일 도구
+            <span class="sub">1080×1080/정사각 기본 썸네일</span>
+          </div>
+          <div class="chip">BLOG</div>
+        </a>
+      </li>
+      <!-- 나중에 다른 도구 생기면 여기 아래에 <li> 하나씩 더 추가하면 됨 -->
+    </ul>
+    <footer>
+      DL 썸네일 툴 · GitHub Pages
+    </footer>
+  </div>
+</body>
+</html>
