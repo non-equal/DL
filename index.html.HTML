@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DECISIONLAB — Square Thumbnail Maker (Preset)</title>
+
+  <!-- Corporate-like KR fonts -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/webfontworld/spoqaHanSansNeo/SpoqaHanSansNeo.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --txt:#eaeaf0;
+      --muted:#a5a5b3;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,#0b0b0c,#0f0f14);
+      color:var(--txt);
+      font-family: Pretendard Variable, Pretendard, "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+    .wrap{
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap:16px;
+      padding:16px;
+      max-width: 1280px;
+      margin:0 auto;
+    }
+    .panel{
+      background:rgba(19,19,22,.75);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      padding:14px;
+      backdrop-filter: blur(10px);
+    }
+    h1{
+      margin:0 0 10px 0;
+      font-size:16px;
+      letter-spacing:.2px;
+      color:#fff;
+    }
+    .row{display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin:10px 0}
+    .row1{display:grid; grid-template-columns: 1fr; gap:10px; margin:10px 0}
+    label{font-size:12px; color:var(--muted); display:block; margin:0 0 6px 2px}
+    input[type="text"], textarea, select{
+      width:100%;
+      padding:10px 10px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.35);
+      color:var(--txt);
+      outline:none;
+      font-size:13px;
+    }
+    textarea{min-height:78px; resize:vertical}
+    input[type="range"]{width:100%}
+    .btns{display:flex; gap:10px; margin-top:10px}
+    button{
+      flex:1;
+      padding:11px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      color:#fff;
+      cursor:pointer;
+      font-weight:700;
+    }
+    button.primary{
+      background:rgba(255,90,42,.18);
+      border-color:rgba(255,90,42,.42);
+    }
+    button:active{transform: translateY(1px)}
+    .hint{font-size:12px; color:var(--muted); line-height:1.5; margin-top:10px}
+
+    .stage{
+      background:rgba(19,19,22,.55);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      padding:14px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height: 560px;
+    }
+    .canvasWrap{
+      border-radius:14px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.10);
+      background:#000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px;
+    }
+    canvas{
+      max-width:100%;
+      height:auto;
+      border-radius:10px;
+      display:block;
+      background:#111;
+    }
+    .mini{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:10px;
+    }
+    .mini > div{
+      background:rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      padding:10px;
+    }
+    .mini b{display:block; font-size:12px; margin-bottom:6px}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+    @media (max-width: 980px){
+      .wrap{grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <!-- LEFT: Controls -->
+    <div class="panel">
+      <h1>썸네일 설정 (기본값 저장 가능)</h1>
+
+      <div class="row1">
+        <div>
+          <label>사진 업로드</label>
+          <input id="file" type="file" accept="image/*" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>출력 사이즈(캔버스)</label>
+          <select id="size">
+            <option value="1080x1080" selected>1080×1080 (블로그/정사각)</option>
+            <option value="1200x800">1200×800 (가로형)</option>
+            <option value="1080x1350">1080×1350 (인스타 4:5)</option>
+            <option value="1280x720">1280×720 (유튜브/16:9)</option>
+            <option value="1200x630">1200×630 (OG/카드뉴스)</option>
+          </select>
+        </div>
+        <div>
+          <label>폰트</label>
+          <select id="font">
+            <option value="Pretendard" selected>Pretendard (기본)</option>
+            <option value="Noto Sans KR">Noto Sans KR</option>
+            <option value="Spoqa Han Sans Neo">Spoqa Han Sans Neo</option>
+            <option value="SUIT">SUIT</option>
+            <option value="IBM Plex Sans KR">IBM Plex Sans KR</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row1">
+        <div>
+          <label>전체 패널(사진 위 어둡게) 투명도</label>
+          <input id="panelAlpha" type="range" min="0" max="80" value="38" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>로고 텍스트(좌상단)</label>
+          <input id="logoText" type="text" value="DECISION\nLAB" />
+        </div>
+        <div>
+          <label>로고 자간(DECISIONLAB)</label>
+          <input id="logoTracking" type="range" min="-2" max="40" value="12" />
+        </div>
+      </div>
+
+      <div class="row1">
+        <div>
+          <label>메인 문구(오른쪽 중간)</label>
+          <textarea id="headline">동성로\n일반음식점</textarea>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>메인 문구 크기</label>
+          <input id="headlineSize" type="range" min="18" max="96" value="66" />
+        </div>
+        <div>
+          <label>메인 문구 행간</label>
+          <input id="headlineLine" type="range" min="1.0" max="1.6" step="0.05" value="1.10" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>메인 문구 X(좌↔우)</label>
+          <input id="headlineX" type="range" min="40" max="92" value="72" />
+        </div>
+        <div>
+          <label>메인 문구 Y(상↔하)</label>
+          <input id="headlineY" type="range" min="15" max="85" value="52" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>메인 문구 색상</label>
+          <input id="accent" type="text" value="#FFFFFF" class="mono" />
+        </div>
+        <div>
+          <label>메인 문구 굵기</label>
+          <select id="headlineWeight">
+            <option value="500">500</option>
+            <option value="600">600</option>
+            <option value="700" selected>700</option>
+            <option value="800">800</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>텍스트 배경(오른쪽 중간)</label>
+          <select id="textBgMode">
+            <option value="none" selected>없음(글자만)</option>
+            <option value="glass">유리패널(살짝)</option>
+            <option value="solid">진한패널(가독 최우선)</option>
+          </select>
+        </div>
+        <div>
+          <label>텍스트 그림자</label>
+          <select id="shadowMode">
+            <option value="on" selected>ON</option>
+            <option value="off">OFF</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row1">
+        <div>
+          <label>하단 중앙 텍스트</label>
+          <input id="footerText" type="text" value="GS REALESTATE" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>하단 텍스트 크기</label>
+          <input id="footerSize" type="range" min="10" max="40" value="18" />
+        </div>
+        <div>
+          <label>하단 투명도</label>
+          <input id="footerAlpha" type="range" min="20" max="100" value="80" />
+        </div>
+      </div>
+
+      <!-- NEW: preset buttons -->
+      <div class="btns">
+        <button id="loadDefault">기본값 불러오기</button>
+        <button id="saveDefault">현재값을 기본값으로 저장</button>
+      </div>
+
+      <div class="btns">
+        <button id="clearDraft">임시값 초기화</button>
+        <button id="download" class="primary">PNG 저장</button>
+      </div>
+
+      <div class="hint">
+        - “현재값을 기본값으로 저장”을 누르면, 앞으로 그 상태가 ‘기본값’이 됩니다.<br/>
+        - 수정하는 값은 자동 저장됩니다(브라우저가 기억). 필요하면 “임시값 초기화”로 원복 가능.
+      </div>
+    </div>
+
+    <!-- RIGHT: Preview -->
+    <div class="stage">
+      <div class="canvasWrap">
+        <canvas id="c" width="1080" height="1080"></canvas>
+      </div>
+
+      <div class="mini">
+        <div>
+          <b>현재 캔버스</b>
+          <div id="info" class="mono" style="font-size:12px;color:var(--muted)"></div>
+        </div>
+        <div>
+          <b>기본값 상태</b>
+          <div id="defaultInfo" style="font-size:12px;color:var(--muted);line-height:1.5"></div>
+        </div>
+        <div>
+          <b>자동 저장</b>
+          <div style="font-size:12px;color:var(--muted);line-height:1.5">
+            슬라이더/텍스트 변경 시 자동 저장됩니다.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+
+  const canvas = $("c");
+  const ctx = canvas.getContext("2d");
+
+  // localStorage keys
+  const KEY_DEFAULT = "DL_THUMB_DEFAULT_V1";
+  const KEY_DRAFT   = "DL_THUMB_DRAFT_V1";
+
+  // ---- 1) 하드코딩된 초기 기본값(최초 1회용) ----
+  // 브라우저에 기본값이 저장되어 있지 않으면 이 값이 최초 기본값이 됩니다.
+  const HARD_DEFAULT = {
+    size: "1080x1080",
+    font: "Pretendard",
+    panelAlpha: 38,
+    logoText: "DECISION\nLAB",
+    logoTracking: 12,
+
+    headline: "동성로\n일반음식점",
+    headlineSize: 66,
+    headlineLine: 1.10,
+    headlineX: 72,
+    headlineY: 52,
+    accent: "#FFFFFF",
+    headlineWeight: 700,
+    textBgMode: "none",
+    shadowMode: "on",
+
+    footerText: "GS REALESTATE",
+    footerSize: 18,
+    footerAlpha: 80
+  };
+
+  // 이미지 상태는 저장하지 않음(개인 파일이라 새로 업로드하는 방식이 안전)
+  const state = {
+    img: null,
+    imgReady: false,
+    ...HARD_DEFAULT
+  };
+
+  function readJSON(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  }
+  function writeJSON(key, obj) {
+    localStorage.setItem(key, JSON.stringify(obj));
+  }
+
+  // ---- 2) 기본값/임시값 로딩 규칙 ----
+  // (a) 기본값: KEY_DEFAULT가 있으면 그걸 사용, 없으면 HARD_DEFAULT를 기본값으로 저장
+  function ensureDefaultPreset() {
+    const saved = readJSON(KEY_DEFAULT);
+    if (saved) return saved;
+    writeJSON(KEY_DEFAULT, HARD_DEFAULT);
+    return {...HARD_DEFAULT};
+  }
+
+  // (b) 임시값(수정값): KEY_DRAFT가 있으면 불러오기(자동 저장용)
+  function loadDraftIntoState() {
+    const draft = readJSON(KEY_DRAFT);
+    if (draft) Object.assign(state, draft);
+  }
+
+  function setCanvasSizeFromSelect() {
+    const [w,h] = $("size").value.split("x").map(Number);
+    canvas.width = w;
+    canvas.height = h;
+    $("info").textContent = `${w}×${h}`;
+  }
+
+  function loadImageFromFile(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
+
+  function coverDraw(img, x, y, w, h) {
+    const iw = img.width, ih = img.height;
+    const ir = iw / ih;
+    const cr = w / h;
+
+    let dw, dh, dx, dy;
+    if (ir > cr) {
+      dh = h;
+      dw = h * ir;
+      dx = x - (dw - w)/2;
+      dy = y;
+    } else {
+      dw = w;
+      dh = w / ir;
+      dx = x;
+      dy = y - (dh - h)/2;
+    }
+    ctx.drawImage(img, dx, dy, dw, dh);
+  }
+
+  function parseMultiline(s) {
+    return (s || "").replaceAll("\\n", "\n").split("\n");
+  }
+
+  function roundedRect(x, y, w, h, r) {
+    const rr = Math.min(r, w/2, h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+rr, y);
+    ctx.arcTo(x+w, y, x+w, y+h, rr);
+    ctx.arcTo(x+w, y+h, x, y+h, rr);
+    ctx.arcTo(x, y+h, x, y, rr);
+    ctx.arcTo(x, y, x+w, y, rr);
+    ctx.closePath();
+  }
+
+  function smartHeadlineSize(baseSize, lineCount) {
+    if (lineCount <= 1) return Math.round(baseSize * 1.08);
+    if (lineCount === 2) return baseSize;
+    if (lineCount === 3) return Math.round(baseSize * 0.92);
+    return Math.round(baseSize * 0.84);
+  }
+
+  function draw() {
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+
+    if (state.imgReady && state.img) {
+      coverDraw(state.img, 0, 0, W, H);
+    } else {
+      const g = ctx.createLinearGradient(0,0,W,H);
+      g.addColorStop(0,"#121218");
+      g.addColorStop(1,"#0b0b0c");
+      ctx.fillStyle = g;
+      ctx.fillRect(0,0,W,H);
+
+      ctx.fillStyle = "rgba(255,255,255,.08)";
+      ctx.fillRect(W*0.06, H*0.12, W*0.88, H*0.76);
+
+      ctx.fillStyle = "rgba(255,255,255,.5)";
+      ctx.font = `600 ${Math.round(Math.min(W,H)*0.03)}px ${state.font}`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("사진 업로드 후 자동 적용", W/2, H/2);
+    }
+
+    const a = Math.max(0, Math.min(0.80, state.panelAlpha / 100));
+    ctx.fillStyle = `rgba(0,0,0,${a})`;
+    ctx.fillRect(0,0,W,H);
+
+    const pad = Math.round(Math.min(W,H)*0.045);
+
+    // logo
+    const logoLines = parseMultiline(state.logoText);
+    const logoSize = Math.round(Math.min(W,H) * 0.043);
+    ctx.fillStyle = "rgba(255,255,255,.92)";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+
+    const tracking = Number(state.logoTracking) || 0;
+    const logoX = pad;
+    const logoY = pad;
+
+    function drawTrackedText(text, x, y, font) {
+      ctx.font = font;
+      let cx = x;
+      for (const ch of text) {
+        ctx.fillText(ch, cx, y);
+        cx += ctx.measureText(ch).width + tracking;
+      }
+    }
+    const logoFont = `800 ${logoSize}px ${state.font}`;
+    const lineGap = Math.round(logoSize * 0.12);
+
+    if (logoLines.length > 0) drawTrackedText(logoLines[0], logoX, logoY, logoFont);
+    if (logoLines.length > 1) {
+      ctx.font = `800 ${logoSize}px ${state.font}`;
+      ctx.fillText(logoLines[1], logoX, logoY + logoSize + lineGap);
+    }
+
+    // footer
+    const footerSize = Number(state.footerSize) || 18;
+    const footerAlpha = Math.max(0.2, Math.min(1.0, (Number(state.footerAlpha)||80)/100));
+    ctx.fillStyle = `rgba(255,255,255,${footerAlpha})`;
+    ctx.font = `700 ${footerSize}px ${state.font}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText(state.footerText || "", W/2, H - pad*0.60);
+
+    // headline
+    const headLines = parseMultiline(state.headline);
+    const baseSize = Number(state.headlineSize) || 66;
+    const headSize = smartHeadlineSize(baseSize, headLines.length);
+    const headLineH = headSize * (Number(state.headlineLine) || 1.10);
+    const headWeight = state.headlineWeight || 700;
+
+    ctx.font = `${headWeight} ${headSize}px ${state.font}`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+
+    let maxW = 0;
+    for (const line of headLines) maxW = Math.max(maxW, ctx.measureText(line).width);
+    const blockW = maxW;
+    const blockH = headLineH * headLines.length;
+
+    const px = (Number(state.headlineX)||72) / 100;
+    const py = (Number(state.headlineY)||52) / 100;
+    const cx = W * px;
+    const cy = H * py;
+
+    let x = cx - blockW/2;
+    let y = cy - blockH/2;
+
+    x = Math.max(pad, Math.min(W - pad - blockW, x));
+    y = Math.max(pad*1.25, Math.min(H - pad*1.6 - blockH, y));
+
+    if (state.textBgMode !== "none") {
+      const marginX = Math.round(headSize * 0.55);
+      const marginY = Math.round(headSize * 0.45);
+      const rx = x - marginX;
+      const ry = y - marginY;
+      const rw = blockW + marginX*2;
+      const rh = blockH + marginY*2;
+
+      let fill = "rgba(0,0,0,.45)";
+      if (state.textBgMode === "glass") fill = "rgba(0,0,0,.22)";
+      if (state.textBgMode === "solid") fill = "rgba(0,0,0,.70)";
+
+      ctx.save();
+      ctx.fillStyle = fill;
+      ctx.strokeStyle = "rgba(255,255,255,.08)";
+      roundedRect(rx, ry, rw, rh, 18);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    const shadowOn = (state.shadowMode === "on");
+    if (shadowOn) {
+      ctx.save();
+      ctx.shadowColor = "rgba(0,0,0,.75)";
+      ctx.shadowBlur = Math.round(headSize * 0.32);
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = Math.round(headSize * 0.10);
+      ctx.fillStyle = state.accent || "#FFFFFF";
+      for (let i=0;i<headLines.length;i++){
+        ctx.fillText(headLines[i], x, y + i*headLineH);
+      }
+      ctx.restore();
+    }
+
+    ctx.fillStyle = state.accent || "#FFFFFF";
+    for (let i=0;i<headLines.length;i++){
+      ctx.fillText(headLines[i], x, y + i*headLineH);
+    }
+  }
+
+  function downloadPNG() {
+    const a = document.createElement("a");
+    a.download = "thumbnail_1080.png";
+    a.href = canvas.toDataURL("image/png");
+    a.click();
+  }
+
+  // ---- UI <-> state ----
+  function getStateFromUI() {
+    return {
+      size: $("size").value,
+      font: $("font").value,
+      panelAlpha: Number($("panelAlpha").value),
+      logoText: $("logoText").value,
+      logoTracking: Number($("logoTracking").value),
+
+      headline: $("headline").value,
+      headlineSize: Number($("headlineSize").value),
+      headlineLine: Number($("headlineLine").value),
+      headlineX: Number($("headlineX").value),
+      headlineY: Number($("headlineY").value),
+      accent: $("accent").value.trim() || "#FFFFFF",
+      headlineWeight: Number($("headlineWeight").value),
+      textBgMode: $("textBgMode").value,
+      shadowMode: $("shadowMode").value,
+
+      footerText: $("footerText").value,
+      footerSize: Number($("footerSize").value),
+      footerAlpha: Number($("footerAlpha").value),
+    };
+  }
+
+  function setUIFromState(s) {
+    $("size").value = s.size;
+    $("font").value = s.font;
+    $("panelAlpha").value = s.panelAlpha;
+    $("logoText").value = (s.logoText || "").replaceAll("\n","\\n");
+    $("logoTracking").value = s.logoTracking;
+
+    $("headline").value = s.headline || "";
+    $("headlineSize").value = s.headlineSize;
+    $("headlineLine").value = s.headlineLine;
+    $("headlineX").value = s.headlineX;
+    $("headlineY").value = s.headlineY;
+    $("accent").value = s.accent || "#FFFFFF";
+    $("headlineWeight").value = s.headlineWeight;
+    $("textBgMode").value = s.textBgMode;
+    $("shadowMode").value = s.shadowMode;
+
+    $("footerText").value = s.footerText || "";
+    $("footerSize").value = s.footerSize;
+    $("footerAlpha").value = s.footerAlpha;
+  }
+
+  function updateDefaultInfo() {
+    const d = readJSON(KEY_DEFAULT) || HARD_DEFAULT;
+    $("defaultInfo").textContent =
+      `size=${d.size}, font=${d.font}, panel=${d.panelAlpha}, tracking=${d.logoTracking}, ` +
+      `headlineSize=${d.headlineSize}, X=${d.headlineX}, Y=${d.headlineY}, footerSize=${d.footerSize}`;
+  }
+
+  function applyUIToStateAndRedraw(saveDraft=true) {
+    Object.assign(state, getStateFromUI());
+    setCanvasSizeFromSelect();
+    draw();
+    if (saveDraft) writeJSON(KEY_DRAFT, getStateFromUI());
+  }
+
+  function bind() {
+    // ensure default exists
+    const defaultPreset = ensureDefaultPreset();
+    updateDefaultInfo();
+
+    // load draft if exists (자동 저장 복원)
+    loadDraftIntoState();
+
+    // first UI reflect from state (draft or default)
+    setUIFromState(state);
+    setCanvasSizeFromSelect();
+    draw();
+    updateDefaultInfo();
+
+    // inputs change => redraw + autosave draft
+    const redrawIds = [
+      "size","font","panelAlpha","logoText","logoTracking",
+      "headline","headlineSize","headlineLine","headlineX","headlineY",
+      "accent","headlineWeight","textBgMode","shadowMode",
+      "footerText","footerSize","footerAlpha"
+    ];
+    redrawIds.forEach(id => {
+      $(id).addEventListener("input", () => applyUIToStateAndRedraw(true));
+    });
+
+    $("file").addEventListener("change", async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      try{
+        const img = await loadImageFromFile(file);
+        state.img = img;
+        state.imgReady = true;
+        draw();
+      }catch(err){
+        alert("이미지 로딩 실패: " + err);
+      }
+    });
+
+    $("download").addEventListener("click", downloadPNG);
+
+    // --- preset buttons ---
+    $("saveDefault").addEventListener("click", () => {
+      const now = getStateFromUI();
+      writeJSON(KEY_DEFAULT, now);
+      updateDefaultInfo();
+      alert("현재 설정을 기본값으로 저장했습니다.");
+    });
+
+    $("loadDefault").addEventListener("click", () => {
+      const d = readJSON(KEY_DEFAULT) || HARD_DEFAULT;
+      Object.assign(state, d);
+      setUIFromState(d);
+      applyUIToStateAndRedraw(true); // 불러온 값도 draft로 저장
+    });
+
+    // 임시값 초기화(자동 저장분 제거) => 기본값으로 돌아감
+    $("clearDraft").addEventListener("click", () => {
+      localStorage.removeItem(KEY_DRAFT);
+      const d = readJSON(KEY_DEFAULT) || HARD_DEFAULT;
+      Object.assign(state, d);
+      setUIFromState(d);
+      applyUIToStateAndRedraw(true);
+      alert("임시값을 초기화하고 기본값으로 되돌렸습니다.");
+    });
+  }
+
+  bind();
+})();
+</script>
+</body>
+</html>
