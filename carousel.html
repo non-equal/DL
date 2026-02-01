@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GS Commercial Note – Carousel Builder</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --ink:#0d0f12;
+      --muted:#6b7280;
+      --line:#e7e9ee;
+      --chip:#f3f4f6;
+      --blue:#1f5eff;
+      --radius:18px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color:var(--ink);
+      background:#0b0d12;
+    }
+
+    /* ===== Editor ===== */
+    .editor{
+      position:sticky; top:0; z-index:50;
+      background:rgba(10,12,16,.92);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      padding:14px 14px 12px;
+      color:#fff;
+    }
+    .editor .row{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    }
+    .editor label{
+      font-size:12px; color:rgba(255,255,255,.72);
+      margin-right:6px;
+    }
+    .editor input, .editor textarea, .editor select{
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.06);
+      color:#fff;
+      padding:9px 10px;
+      border-radius:10px;
+      outline:none;
+      font-size:13px;
+    }
+    .editor input{ width:140px; }
+    .editor input.small{ width:90px; }
+    .editor button{
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.10);
+      color:#fff;
+      padding:10px 12px;
+      border-radius:10px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .editor button.primary{
+      background:rgba(31,94,255,.18);
+      border-color:rgba(31,94,255,.35);
+    }
+    .editor .hint{
+      font-size:12px; color:rgba(255,255,255,.65);
+      margin-top:8px;
+      line-height:1.35;
+    }
+
+    .wrap{
+      padding:16px;
+      display:flex;
+      gap:16px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+
+    /* ===== Card canvas (1080x1350 for IG portrait) ===== */
+    .card{
+      width:1080px;
+      height:1350px;
+      background:var(--bg);
+      border-radius:24px;
+      overflow:hidden;
+      position:relative;
+      box-shadow: 0 14px 40px rgba(0,0,0,.45);
+    }
+
+    /* inner padding */
+    .inner{
+      padding:64px 76px 64px 76px;
+      height:100%;
+      position:relative;
+    }
+
+    /* header line */
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:999px;
+      padding:10px 16px;
+      font-size:16px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:#5b6270;
+    }
+    .chip strong{
+      color:#0f172a;
+      letter-spacing:.08em;
+      font-weight:800;
+    }
+
+    .brand{
+      text-align:right;
+      font-size:18px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:#0f172a;
+      font-weight:800;
+      line-height:1.1;
+    }
+    .brand small{
+      display:block;
+      margin-top:6px;
+      font-size:14px;
+      letter-spacing:.32em;
+      color:#6b7280;
+      font-weight:800;
+    }
+
+    /* big number */
+    .bigNo{
+      font-size:420px;
+      font-weight:900;
+      line-height:0.9;
+      margin:56px 0 18px;
+      letter-spacing:-0.06em;
+    }
+
+    /* title */
+    .title{
+      font-size:66px;
+      font-weight:900;
+      letter-spacing:-0.04em;
+      margin:0 0 14px;
+    }
+    .subtitle{
+      font-size:22px;
+      color:#374151;
+      line-height:1.55;
+      max-width:820px;
+      margin:0 0 34px;
+    }
+
+    .ruleLine{
+      height:1px;
+      background:var(--line);
+      margin:34px 0;
+    }
+
+    /* 2-column grid */
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:34px;
+      margin-top:18px;
+    }
+    .colTitle{
+      font-size:16px;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      font-weight:900;
+      color:var(--blue);
+      margin:0 0 12px;
+    }
+    .section{
+      font-size:20px;
+      line-height:1.65;
+      color:#111827;
+    }
+    .bullets{
+      margin:0;
+      padding-left:18px;
+    }
+    .bullets li{
+      margin:8px 0;
+    }
+
+    .callout{
+      margin-top:16px;
+      border:1px solid var(--line);
+      background:#fafafa;
+      border-radius:16px;
+      padding:16px 18px;
+      color:#111827;
+      font-size:18px;
+      line-height:1.6;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.6);
+    }
+    .callout strong{ font-weight:900; }
+
+    .mutedNote{
+      margin-top:14px;
+      color:#6b7280;
+      font-size:16px;
+      line-height:1.55;
+    }
+
+    /* bottom */
+    .bottom{
+      position:absolute;
+      left:76px;
+      right:76px;
+      bottom:44px;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:16px;
+      color:#6b7280;
+      font-size:14px;
+      line-height:1.35;
+    }
+    .pageno{
+      font-weight:900;
+      letter-spacing:.08em;
+      color:#1f5eff;
+      font-size:16px;
+    }
+
+    /* per-card actions */
+    .actions{
+      width:1080px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin:6px 0 18px;
+      color:#e5e7eb;
+      font-size:12px;
+    }
+    .actions button{
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.10);
+      color:#fff;
+      padding:10px 12px;
+      border-radius:10px;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .actions .left{
+      opacity:.85;
+    }
+
+    /* responsive scale preview on small screens */
+    @media (max-width: 1200px){
+      .card, .actions{ transform:scale(.34); transform-origin: top center; }
+      .wrap{ padding:10px; }
+      .actions{ margin:-8px 0 4px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="editor">
+    <div class="row">
+      <div>
+        <label>시작번호(표지)</label>
+        <input id="startNo" class="small" type="number" value="1" min="1" max="30" />
+      </div>
+      <div>
+        <label>지역명</label>
+        <input id="areaName" type="text" value="동성로" />
+      </div>
+      <div>
+        <label>상단 우측(대제목)</label>
+        <input id="brandTop" type="text" value="GS COMMERCIAL NOTE" />
+      </div>
+      <div>
+        <label>상단 우측(소제목)</label>
+        <input id="brandSub" type="text" value="DONGSEONGRO" />
+      </div>
+      <button class="primary" id="applyBtn">내용 적용</button>
+      <button id="resetBtn">샘플(교동) 불러오기</button>
+    </div>
+    <div class="hint">
+      • “시작번호=2, 지역명=교동”처럼 바꾸면 <b>표지 숫자 2</b> + 본문 <b>3~8</b>로 자동 생성됩니다.<br/>
+      • PNG 저장이 안 되면 인터넷 연결(처음 1회) 또는 하단 안내대로 html2canvas를 로컬로 넣어주세요.
+    </div>
+  </div>
+
+  <div class="wrap" id="cards"></div>
+
+  <!-- html2canvas (온라인 CDN). 오프라인이면 아래 안내대로 로컬 파일로 교체하세요. -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <script>
+    // ===== Data Model =====
+    // 7장 세트: 표지 1장 + 본문 6장 (총 7)
+    // 시작번호 = coverNo, 이후 coverNo+1 ... coverNo+6
+    const model = {
+      cover: {
+        chipLeft: "DATA BRIEF",
+        chipRight: "2026",
+        title: "{AREA} 핵심 지표",
+        subtitle: "“감”이 아니라 “근거”로 봅니다.\n공식 발표·공개 데이터로 검증 가능한 지표만 정리합니다.\n유동(통신사)·매출(카드)·공실(국가승인통계 기반).",
+        footLeft: "BRIEFING · 출처가 명확한 자료만 사용(추정치 배제)\n※ 본 자료는 공개 자료 요약이며, 개별 점포의 매출/성과를 보장하지 않습니다."
+      },
+      cards: [
+        // 2번째 카드(coverNo+1)부터 6장
+        {
+          chipLeft: "WHY IT MATTERS",
+          chipRight: "FRAME",
+          title: "“{AREA}”의 기준을 먼저 고정합니다",
+          subtitle: "분석 범위가 고정돼야 유동/매출/공실 수치가 같은 언어로 해석됩니다.",
+          leftTitle: "FACT (공식 발표)",
+          leftBullets: [
+            "분석 범위(특정 구간/면적/거리)를 먼저 정의합니다.",
+            "동일 범위 기준으로만 전년비/증감률을 비교합니다."
+          ],
+          leftCallout: "핵심 · “좋다/나쁘다” 결론부터 내리지 않습니다. 먼저 <strong>범위(정의)</strong>를 고정하고 지표를 읽습니다.",
+          rightTitle: "FOR DECISION",
+          rightBullets: [
+            "임차인: 같은 ‘{AREA}’라도 범위가 다르면 숫자 해석이 달라집니다.",
+            "임대인: 범위가 고정되면 운영/콘텐츠/외부 유입 논의가 가능해집니다.",
+            "투자자: 정책 단위는 데이터·계획이 축적돼 검증이 수월합니다."
+          ],
+          sourcesTitle: "SOURCE (CLEAN)",
+          sources: [
+            "[A] 지자체/공식 보도자료(지정·고시/범위 표기)",
+            "[B] 정부/공공기관 공개자료(목록·현황)"
+          ],
+          bottomNote: "※ 이 카드에서는 ‘지정 사실/범위’만 다룹니다. 성과 평가는 다음 지표로 확인합니다."
+        },
+        {
+          chipLeft: "NUMBERS",
+          chipRight: "FOOTFALL",
+          title: "유동인구는 “통신사 데이터”로 설명합니다",
+          subtitle: "체감이 아니라 공개된 수치 기반으로, ‘방향(전년비)’부터 확인합니다.",
+          leftTitle: "FACT (공식 공개 수치)",
+          leftBullets: [
+            "시간 평균 유동(또는 일/월 평균) 수치 확인",
+            "전년 대비 증감(%) 추세 확인"
+          ],
+          leftCallout: "유동은 “많다/적다” 결론이 아니라, <strong>방향(전년비)</strong>과 <strong>범위(정의)</strong>를 같이 읽는 지표입니다.",
+          rightTitle: "HOW TO USE",
+          rightBullets: [
+            "임차인: 업종 선택 전 ‘규모’보다 <strong>추세(전년비)</strong>를 먼저 봅니다.",
+            "임대인: 유동이 늘수록 전면/라인/출입 등 물리 조건 격차가 커집니다.",
+            "투자자: 단기 이벤트가 아니라 공식 범위 내 추세로 판단합니다."
+          ],
+          sourcesTitle: "SOURCE (CLEAN)",
+          sources: [
+            "[C] 지자체/공공기관 공개(유동/전년비/추세)"
+          ],
+          bottomNote: "※ 세부 세그먼트는 공개 범위 외 단정하지 않습니다."
+        },
+        {
+          chipLeft: "PRACTICE",
+          chipRight: "SELECTION",
+          title: "유동을 “상가 선택”으로 바꾸는 3가지 체크",
+          subtitle: "유동이 강하다고 다 같은 기회가 아닙니다. ‘유동→매출 전환’ 구조를 봅니다. (실무 프레임/수치 없음)",
+          leftTitle: "CHECK 01",
+          leftBullets: [
+            "동선: ‘지나감’인지 ‘머뭄(체류)’인지",
+            "같은 유동이라도 전환 구조가 다릅니다."
+          ],
+          leftCallout: "체류형은 <strong>진입·대기·좌석</strong>, 통과형은 <strong>노출·첫 3초 인상</strong>이 전환을 바꿉니다.",
+          rightTitle: "CHECK 02",
+          rightBullets: [
+            "가시성: 전면 폭/시야각/야간 노출(조도·간판)",
+            "코너/횡단보도/정류장 인접은 노출의 ‘질’을 바꿉니다.",
+            "유리 비중·개구부·조명은 ‘살아있는 점포’ 인상을 만듭니다."
+          ],
+          sourcesTitle: "TAKEAWAY",
+          sources: [
+            "유동 지표는 상권 ‘평가’가 아니라, 점포의 전면·동선·레벨을 검증하는 시작점입니다."
+          ],
+          bottomNote: "다음 카드: 유동이 ‘소비’로 연결되는지 카드 매출(공식 수치)로 확인합니다."
+        },
+        {
+          chipLeft: "NUMBERS",
+          chipRight: "SALES",
+          title: "매출은 “카드 데이터”로 확인합니다",
+          subtitle: "유동이 늘어도 소비가 따라오지 않으면 체감은 달라집니다. 공개된 카드 수치로 확인합니다.",
+          leftTitle: "FACT (공식 공개 수치)",
+          leftBullets: [
+            "월평균/총액 카드 매출(또는 지표) 확인",
+            "전년 대비 증감(%) 확인"
+          ],
+          leftCallout: "포인트 · ‘사람(유동)’과 ‘소비(매출)’가 같이 움직이는지 여부가 핵심입니다.",
+          rightTitle: "HOW TO READ",
+          rightBullets: [
+            "임차인: 업종 선택은 유동보다 <strong>소비의 존재</strong>부터 확인합니다.",
+            "임대인: 소비가 늘수록 업종 믹스/수요 변동이 빨라집니다.",
+            "투자자: 총액은 ‘방향’이고, 개별 점포는 현장 변수를 다시 봅니다."
+          ],
+          sourcesTitle: "SOURCE (CLEAN)",
+          sources: [
+            "[D] 공공기관/지자체 공개(카드매출/전년비/추세)"
+          ],
+          bottomNote: "다음 카드: 카드매출을 ‘임대료 판단’으로 바꾸는 실무 프레임(수치 없음)."
+        },
+        {
+          chipLeft: "PRACTICE",
+          chipRight: "RENT",
+          title: "카드 매출을 “임대료 판단”으로 바꾸는 프레임",
+          subtitle: "상권 매출(총액)과 점포 순익은 다릅니다. 상담에서는 ‘총액’보다 고정비를 커버하는 구조를 봅니다. (실무 프레임/수치 없음)",
+          leftTitle: "FRAME 01",
+          leftBullets: [
+            "객단가 × 회전율이 월 고정비(임대료·인건비·원가)를 커버하는가"
+          ],
+          leftCallout: "같은 상권이라도 ‘가능 임대료 상한선’은 완전히 다릅니다. 구조를 먼저 계산합니다.",
+          rightTitle: "FRAME 02",
+          rightBullets: [
+            "주말 의존도가 높은가(매출 변동성)",
+            "주말 집중형은 평일 손익/인건비 설계가 핵심",
+            "평일형은 반복 방문 동선/생활권 흡수 구조가 핵심"
+          ],
+          sourcesTitle: "TAKEAWAY",
+          sources: [
+            "카드매출은 ‘상권 레벨’ 지표입니다. 임대료는 ‘점포 레벨’로 다시 환산해야 합니다."
+          ],
+          bottomNote: "다음 카드: 공실률(국가승인통계)로 ‘임대 시장 압력’을 확인합니다."
+        },
+        {
+          chipLeft: "NUMBERS",
+          chipRight: "VACANCY",
+          title: "공실률은 “국가승인통계 기반”으로 다룹니다",
+          subtitle: "공실은 체감이 아니라 통계로 확인합니다. 보도/통계 원천이 명확한 수치만 씁니다.",
+          leftTitle: "FACT (보도 인용 · 원천은 국가승인통계)",
+          leftBullets: [
+            "분기 공실률 추세(1Q → 2Q → 3Q)처럼 ‘변화’를 봅니다.",
+            "원천(통계명/정의/조사체계)을 확인합니다."
+          ],
+          leftCallout: "해석 · 공실률은 ‘상권이 끝났다’가 아니라, 임대차 조건 설계 시 <strong>협상 환경(공급 압력)</strong>을 보여주는 지표입니다.",
+          rightTitle: "HOW TO USE",
+          rightBullets: [
+            "임차인: 공실 상승 구간은 렌트프리/시설인수/권리 구조 협상 여지가 커질 수 있습니다.",
+            "임대인: 단가보다 ‘지속 운영 가능한 조건’으로 재정렬이 필요합니다.",
+            "투자자: 공실은 ‘가격’보다 회수기간/리스크를 먼저 보게 만듭니다."
+          ],
+          sourcesTitle: "SOURCE (CLEAN)",
+          sources: [
+            "[E] 국가승인통계(상업용부동산 임대동향 등)",
+            "[F] 공신력 있는 보도(원천 통계 명시 인용)"
+          ],
+          bottomNote: "마무리: ‘이 자료의 한계’를 투명하게 공개하면, 브랜딩 신뢰를 지킵니다."
+        }
+      ]
+    };
+
+    function splitLines(text){
+      return (text || "").split("\n").map(s => s.trim()).filter(Boolean);
+    }
+
+    function esc(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+    }
+
+    function render(){
+      const startNo = parseInt(document.getElementById("startNo").value || "1", 10);
+      const areaName = document.getElementById("areaName").value || "동성로";
+      const brandTop = document.getElementById("brandTop").value || "GS COMMERCIAL NOTE";
+      const brandSub = document.getElementById("brandSub").value || areaName.toUpperCase();
+
+      const cardsEl = document.getElementById("cards");
+      cardsEl.innerHTML = "";
+
+      // --- cover (1장) ---
+      const coverNo = startNo;
+      const cover = {
+        chipLeft: model.cover.chipLeft,
+        chipRight: model.cover.chipRight,
+        no: coverNo,
+        title: model.cover.title.replaceAll("{AREA}", areaName),
+        subtitle: model.cover.subtitle.replaceAll("{AREA}", areaName),
+        bottomLeft: model.cover.footLeft,
+        pageNo: String(coverNo).padStart(2,"0"),
+        brandTop, brandSub
+      };
+
+      cardsEl.appendChild(makeActionsRow(coverNo, "표지"));
+      cardsEl.appendChild(makeCoverCard(cover));
+
+      // --- content cards (6장) ---
+      model.cards.forEach((c, idx) => {
+        const no = startNo + 1 + idx;
+        const pageNo = String(no).padStart(2,"0");
+        const cardData = {
+          chipLeft: c.chipLeft,
+          chipRight: c.chipRight,
+          no,
+          title: c.title.replaceAll("{AREA}", areaName),
+          subtitle: c.subtitle.replaceAll("{AREA}", areaName),
+          leftTitle: c.leftTitle,
+          leftBullets: (c.leftBullets || []).map(x => x.replaceAll("{AREA}", areaName)),
+          leftCallout: c.leftCallout.replaceAll("{AREA}", areaName),
+          rightTitle: c.rightTitle,
+          rightBullets: (c.rightBullets || []).map(x => x.replaceAll("{AREA}", areaName)),
+          sourcesTitle: c.sourcesTitle,
+          sources: (c.sources || []).map(x => x.replaceAll("{AREA}", areaName)),
+          bottomNote: (c.bottomNote || "").replaceAll("{AREA}", areaName),
+          pageNo,
+          brandTop, brandSub
+        };
+
+        cardsEl.appendChild(makeActionsRow(no, cardData.chipLeft));
+        cardsEl.appendChild(makeContentCard(cardData));
+      });
+    }
+
+    function makeActionsRow(no, label){
+      const row = document.createElement("div");
+      row.className = "actions";
+      row.innerHTML = `
+        <div class="left">CARD ${no} · ${esc(label)}</div>
+        <div class="right">
+          <button data-save="${no}">PNG 저장</button>
+        </div>
+      `;
+      row.querySelector("button").addEventListener("click", async () => {
+        const card = document.querySelector(`.card[data-card='${no}']`);
+        if(!card) return;
+        await saveCardAsPNG(card, `carousel_${no}.png`);
+      });
+      return row;
+    }
+
+    function makeCoverCard(d){
+      const card = document.createElement("div");
+      card.className = "card";
+      card.dataset.card = d.no;
+      card.innerHTML = `
+        <div class="inner">
+          <div class="topbar">
+            <div class="chip"><strong>${esc(d.chipLeft)}</strong>&nbsp;<span>${esc(d.chipRight)}</span></div>
+            <div class="brand">${esc(d.brandTop)}<small>${esc(d.brandSub)}</small></div>
+          </div>
+
+          <div class="bigNo">${esc(d.no)}</div>
+          <h1 class="title">${esc(d.title)}</h1>
+          <div class="subtitle">${esc(d.subtitle).replaceAll("\n","<br/>")}</div>
+
+          <div class="bottom">
+            <div>${esc(d.bottomLeft).replaceAll("\n","<br/>")}</div>
+            <div class="pageno">${esc(d.pageNo)}</div>
+          </div>
+        </div>
+      `;
+      return card;
+    }
+
+    function makeContentCard(d){
+      const card = document.createElement("div");
+      card.className = "card";
+      card.dataset.card = d.no;
+      card.innerHTML = `
+        <div class="inner">
+          <div class="topbar">
+            <div class="chip"><strong>${esc(d.chipLeft)}</strong>&nbsp;<span>${esc(d.chipRight)}</span></div>
+            <div class="brand">${esc(d.brandTop)}<small>${esc(d.brandSub)}</small></div>
+          </div>
+
+          <div class="bigNo">${esc(d.no)}</div>
+          <h1 class="title">${esc(d.title)}</h1>
+          <div class="subtitle">${esc(d.subtitle).replaceAll("\n","<br/>")}</div>
+
+          <div class="ruleLine"></div>
+
+          <div class="grid">
+            <div>
+              <div class="colTitle">${esc(d.leftTitle)}</div>
+              <div class="section">
+                <ul class="bullets">
+                  ${(d.leftBullets||[]).map(li => `<li>${esc(li)}</li>`).join("")}
+                </ul>
+                <div class="callout">${d.leftCallout}</div>
+              </div>
+            </div>
+
+            <div>
+              <div class="colTitle">${esc(d.rightTitle)}</div>
+              <div class="section">
+                <ul class="bullets">
+                  ${(d.rightBullets||[]).map(li => `<li>${esc(li)}</li>`).join("")}
+                </ul>
+
+                <div class="ruleLine" style="margin:20px 0 14px;"></div>
+
+                <div class="colTitle">${esc(d.sourcesTitle)}</div>
+                <div class="mutedNote">
+                  ${(d.sources||[]).map(s => `• ${esc(s)}`).join("<br/>")}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bottom">
+            <div>${esc(d.bottomNote)}</div>
+            <div class="pageno">${esc(d.pageNo)}</div>
+          </div>
+        </div>
+      `;
+      return card;
+    }
+
+    async function saveCardAsPNG(cardEl, filename){
+      if(typeof html2canvas !== "function"){
+        alert("PNG 저장 라이브러리(html2canvas)를 불러오지 못했습니다.\n- 인터넷 연결 후 다시 시도하거나\n- html2canvas 파일을 carousel.html과 같은 폴더에 넣고 <script> 경로를 로컬로 바꿔주세요.");
+        return;
+      }
+      const canvas = await html2canvas(cardEl, {
+        backgroundColor: "#ffffff",
+        scale: 2,
+        useCORS: true
+      });
+      const a = document.createElement("a");
+      a.href = canvas.toDataURL("image/png");
+      a.download = filename;
+      a.click();
+    }
+
+    // 샘플(교동) 자동 채우기
+    function loadGyodongSample(){
+      document.getElementById("startNo").value = 2;
+      document.getElementById("areaName").value = "교동";
+      document.getElementById("brandSub").value = "GYODONG";
+      render();
+    }
+
+    document.getElementById("applyBtn").addEventListener("click", render);
+    document.getElementById("resetBtn").addEventListener("click", loadGyodongSample);
+
+    // first render
+    render();
+  </script>
+
+  <!--
+    [오프라인 PNG 저장이 안 될 때]
+    1) PC에서 html2canvas.min.js 다운로드
+       (예: https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js)
+    2) carousel.html과 같은 폴더에 저장: ./html2canvas.min.js
+    3) 위의 <script src="https://..."> 줄을 아래처럼 바꾸기:
+       <script src="./html2canvas.min.js"></script>
+  -->
+</body>
+</html>
